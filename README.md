@@ -29,6 +29,15 @@ Made by:
 
 - run `npm start` for server and run `npm run dev` for client to start app.
 
+# Changelog
+
+## Second commit
+
+- Change password added.
+- Now you can log out.
+- Landing page added.
+- Swap between log in and sign up screens.
+
 ### Author
 
 - LinkedIn - [Ömer Fatih Bülbül](https://www.linkedin.com/in/ömer-fatih-bülbül-74a890236/)
