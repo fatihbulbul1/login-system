@@ -15,10 +15,15 @@ app.post("/register", (req, res) => {
     username: req.body.username,
     password: req.body.password,
   });
-  newUser.save().then(() => res.json(`User added ${req.body.username}`));
+  User.findOne({ username: req.body.username }).then((user) => {
+    if (!user) {
+      newUser.save().then(() => res.json(`User added ${req.body.username}`));
+    } else res.status(404).json(`User ${req.body.username} exists!`);
+  });
 });
 app.post("/login", (req, res) => {
   User.findOne({ username: req.body.username }).then((user) => {
+    console.log(user);
     if (user) {
       if (user.password === req.body.password) {
         res.json(true);
@@ -28,7 +33,19 @@ app.post("/login", (req, res) => {
     } else res.json(false);
   });
 });
-
+app.post("/update-user", async (req, res) => {
+  const pw = await User.findOne({ username: req.body.username }).then(
+    (user) => user.password
+  );
+  if (pw !== req.body.password) {
+    User.findOneAndUpdate(
+      { username: req.body.username },
+      { password: req.body.password }
+    ).then((user) => {
+      if (user) res.status(200).json(true);
+    });
+  } else res.status(404).json(false);
+});
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log("Connected to MongoDB");
   app.listen(PORT, () => {

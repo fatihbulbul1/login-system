@@ -11,6 +11,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 import Dashboard from "./components/Dashboard";
+import Welcome from "./components/Welcome";
+import UserSettings from "./components/UserSettings";
 
 function App() {
   const navigate = useNavigate();
@@ -19,10 +21,9 @@ function App() {
   const [isLogged, setIsLogged] = useState(false);
   const [signUser, setSignUser] = useState("");
   const [signPassword, setSignPassword] = useState("");
+  const [err, setErr] = useState<boolean | undefined>(undefined);
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setUsername("");
-    setPassword("");
     fetch("http://localhost:3000/login", {
       method: "POST",
       headers: {
@@ -31,13 +32,14 @@ function App() {
       body: JSON.stringify({ username: username, password: password }),
     })
       .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
+      .then(async (data) => {
         setIsLogged(data);
         if (data) {
-          setTimeout(() => {
-            navigate("/dashboard");
-          }, 1000);
+          navigate("/dashboard");
+          setPassword("");
+        } else {
+          setUsername("");
+          setPassword("");
         }
       });
   };
@@ -52,6 +54,9 @@ function App() {
         username: signUser,
         password: signPassword,
       }),
+    }).then((res) => {
+      if (!res.ok) setErr(true);
+      else setErr(false);
     });
     setSignUser("");
     setSignPassword("");
@@ -59,6 +64,7 @@ function App() {
   return (
     <div className="App">
       <Routes>
+        <Route path="/" element={<Welcome />} />
         <Route
           path="/login"
           element={
@@ -83,6 +89,7 @@ function App() {
           path="/signup"
           element={
             <SignUp
+              err={err}
               signUser={signUser}
               signPassword={signPassword}
               setSignUser={setSignUser}
@@ -91,7 +98,28 @@ function App() {
             />
           }
         />
-        <Route path="/dashboard" element={<Dashboard isLogged={isLogged} />} />
+        <Route
+          path="/dashboard"
+          element={
+            <Dashboard
+              setIsLogged={setIsLogged}
+              username={username}
+              setUsername={setUsername}
+              isLogged={isLogged}
+            />
+          }
+        />
+        <Route
+          path="/dashboard/settings"
+          element={
+            <UserSettings
+              setIsLogged={setIsLogged}
+              username={username}
+              setUsername={setUsername}
+              isLogged={isLogged}
+            />
+          }
+        />
       </Routes>
     </div>
   );
